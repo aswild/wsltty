@@ -35,11 +35,23 @@ You may need to open the Properties of the installer first, tab “General”
 section “Security” (if available) and select “Unblock”, 
 to enable the “Run anyway” button.
 
+#### WSLtty Portable installer
+
+For a portable installation, e.g. on a USB stick, choose the 
+“-install-portable.exe” file for download. Installation will prompt 
+for a portable installation folder interactively. 
+For example, choosing `U:\opt` will create and use folder 
+`U:\opt\wsltty` both as installation directory and configuration directory.
+Portable installation does not install any start menu or desktop shortcuts 
+and no context menu entries. It creates a shortcut in the selected 
+portable installation folder to start the default WSL distribution.
+
 #### Installation from archive ####
 
 In case a local anti-virus guard barfs about the wsltty installer, the 
 release also contains a `.cab` file. Download it, open it, extract its files 
-to some temporary deployment directory, and invoke `install.bat` from there.
+to some temporary deployment directory, and invoke `install.bat` from there, 
+or `install-portable.bat` for a portable installation.
 
 #### Installation from source repository ####
 
@@ -62,14 +74,20 @@ the optional second parameter designates the configuration directory.
 
 ### Installation with other package management environments ###
 
-Note that these are 3rd-party contributions and do not necessarily 
-provide the latest version.
+Note: These are 3rd-party packages, not managed by this repository.
+
+#### Windows Package Manager ####
+
+To install wsltty from the 
+[Windows Package Manager Community Repository](https://github.com/microsoft/winget-pkgs), 
+invoke one of
+* `winget install wsltty`
+* `winget upgrade wsltty`
 
 #### Chocolatey ####
 
 If you use the [Chocolatey package manager](https://chocolatey.org/), 
 invoke one of
-<img height=222 align=right src=https://github.com/mintty/wsltty.appx/raw/master/wsltty.appx.png>
 * `choco install wsltty`
 * `choco upgrade wsltty`
 
@@ -81,10 +99,6 @@ If you use the [Scoop package manager](https://scoop.sh/),
 then, invoke one of
 * `scoop install wsltty`
 * `scoop update wsltty`
-
-#### Windows Appx package ####
-
-A Windows Appx package and certificate is available in the [wsltty.appx](https://github.com/mintty/wsltty.appx/) repository.
 
 ### Uninstallation ###
 

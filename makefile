@@ -11,16 +11,16 @@
 .NOTPARALLEL:
 
 # wsltty release
-ver=3.5.1
+ver=3.6.0
 
 # wsltty appx release - must have 4 parts!
-verx=3.5.1.1
+verx=3.6.0.0
 
 
 ##############################
 # mintty release version
 
-minttyver=3.5.1
+minttyver=3.6.0
 
 ##############################
 
@@ -149,6 +149,8 @@ wslbridge-source:	$(wslbridgedir).zip
 	cp $(wslbridgedir)/LICENSE LICENSE.wslbridge2
 	# patch
 	cd $(wslbridgedir); patch -p1 < ../0001-notify-size-change-inband.patch
+	# patch to https://github.com/Biswa96/wslbridge2/commit/41575379b416703c49e2687e957440239a4cdfb7
+	cd $(wslbridgedir); patch -p0 < ../0002-add-com-for-lifted-wsl.patch
 
 wslbridge-frontend:	wslbridge-source
 	echo ------------- Compiling wslbridge2 frontend
@@ -276,14 +278,35 @@ cop:	copcab
 	mkdir -p rel
 	cp -fl $(CAB)/* rel/
 
-installer:	cop
+installer:	cop cab normal-installer silent-installer portable-installer
+
+cab:
+	# build cab archive
+	lcab -r $(CAB) rel/$(CAB).cab
+
+normal-installer:
 	# prepare build of installer
 	rm -f rel/$(CAB)-install.exe
 	sed -e "s,%version%,$(ver)," -e "s,%arch%,$(arch)," makewinx.cfg > rel/wsltty.SED
 	# build installer
 	cd rel; iexpress /n wsltty.SED
-	# build cab archive
-	lcab -r $(CAB) rel/$(CAB).cab
+
+silent-installer:
+	# prepare build of installer
+	rm -f rel/$(CAB)-install-quiet.exe
+	cd rel; sed -e "/ShowInstallProgramWindow/ s/0/1/" -e "/HideExtractAnimation/ s/0/1/" -e "/InstallPrompt/ s/=.*/=/" -e "/FinishMessage/ s/=.*/=/" -e "/TargetName/ s/install.exe/install-quiet.exe/" wsltty.SED > wsltty-quiet.SED
+	# build installer
+	cd rel; iexpress /n wsltty-quiet.SED
+
+InstallPrompt=Install Mintty terminal for WSL Portable?
+FinishMessage=Mintty for WSL Portable installation finished
+
+portable-installer:
+	# prepare build of installer
+	rm -f rel/$(CAB)-install-portable.exe
+	cd rel; sed -e "/InstallPrompt/ s/=.*/=$(InstallPrompt)/" -e "/FinishMessage/ s/=.*/=$(FinishMessage)/" -e "/AppLaunched/ s/install/install-portable/" -e "/TargetName/ s/install.exe/install-portable.exe/" wsltty.SED > wsltty-portable.SED
+	# build installer
+	cd rel; iexpress /n wsltty-portable.SED
 
 install:	cop installbat
 

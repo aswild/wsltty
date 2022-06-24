@@ -8,6 +8,7 @@
 # make install	install wsltty locally from build (no installer needed)
 # make wsltty	build the software, using the local copy of mintty
 
+.NOTPARALLEL:
 
 # wsltty release
 ver=3.5.1
@@ -55,13 +56,11 @@ wslbridgedir=wslbridge2-$(wslbridgever)
 # mintty branch or commit version
 #minttyver=master
 
+mintty_repo=aswild/mintty
+minttyver=master
+
 # wslbridge branch or commit to build from source;
 wslbridge=wslbridge-frontend wslbridge-backend
-
-##############################
-# build backend on a musl-libc-based distribution
-# (reportedly not needed anymore but untested)
-BuildDistr=-d Alpine
 
 ##############################
 # Windows SDK version for appx
@@ -155,7 +154,7 @@ wslbridge-frontend:	wslbridge-source
 	echo ------------- Compiling wslbridge2 frontend
 	mkdir -p bin
 	# frontend build
-	cd $(wslbridgedir)/src; make -f Makefile.frontend RELEASE=1
+	$(MAKE) -j12 -C $(wslbridgedir)/src -f Makefile.frontend RELEASE=1
 	# extract binaries
 	cp $(wslbridgedir)/bin/wslbridge2.exe bin/
 
@@ -166,14 +165,14 @@ wslbridge-backend:	wslbridge-source
 	#uname -m | grep x86_64
 	mkdir -p bin
 	# provide dependencies for backend build
-	PATH="$(windir)/Sysnative:${PATH}" cmd /C wsl.exe -u root $(BuildDistr) $(shell env | grep http_proxy=) apk add make g++ linux-headers < /dev/null
+	@#PATH="$(windir)/Sysnative:${PATH}" cmd /C wsl.exe -u root $(BuildDistr) $(shell env | grep http_proxy=) apk add make g++ linux-headers < /dev/null
 	# invoke backend build
-	cd $(wslbridgedir)/src; PATH="$(windir)/Sysnative:${PATH}" cmd /C wsl.exe $(BuildDistr) make -f Makefile.backend RELEASE=1 < /dev/null
+	cd $(wslbridgedir)/src; PATH="$(windir)/Sysnative:${PATH}" cmd /C wsl.exe make -f Makefile.backend RELEASE=1 < /dev/null
 	# extract binaries
 	cp $(wslbridgedir)/bin/wslbridge2-backend bin/
 
 mintty-get:
-	$(wgeto) https://github.com/mintty/mintty/archive/$(minttyver).zip -o mintty-$(minttyver).zip
+	$(wgeto) https://github.com/$(mintty_repo)/archive/$(minttyver).zip -o mintty-$(minttyver).zip
 	unzip -o mintty-$(minttyver).zip
 	cp mintty-$(minttyver)/icon/terminal.ico mintty.ico
 
@@ -187,7 +186,7 @@ mintty-build:
 	rm -f mintty-$(minttyver)/bin/*/windialog.o
 	rm -f mintty-$(minttyver)/bin/*/winmain.o
 	# build mintty
-	cd mintty-$(minttyver)/src; make $(wslbuild) $(wslversion)
+	$(MAKE) -j12 -C mintty-$(minttyver)/src $(wslbuild) $(wslversion)
 	mkdir -p bin
 	cp mintty-$(minttyver)/bin/mintty.exe bin/
 	strip bin/mintty.exe
@@ -196,7 +195,7 @@ mintty-build-appx:
 	# ensure rebuild of version-specific check and message
 	rm -f mintty-$(minttyver)/bin/*/windialog.o
 	# build mintty
-	cd mintty-$(minttyver)/src; make $(appxbuild) $(appxversion)
+	$(MAKE) -C mintty-$(minttyver)/src $(appxbuild) $(appxversion)
 	mkdir -p bin
 	cp mintty-$(minttyver)/bin/mintty.exe bin/
 	strip bin/mintty.exe

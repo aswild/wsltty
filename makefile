@@ -156,7 +156,7 @@ wslbridge-frontend:	wslbridge-source
 	echo ------------- Compiling wslbridge2 frontend
 	mkdir -p bin
 	# frontend build
-	$(MAKE) -j12 -C $(wslbridgedir)/src -f Makefile.frontend RELEASE=1
+	$(MAKE) -j$(shell nproc) -C $(wslbridgedir)/src -f Makefile.frontend RELEASE=1
 	# extract binaries
 	cp $(wslbridgedir)/bin/wslbridge2.exe bin/
 
@@ -188,7 +188,7 @@ mintty-build:
 	rm -f mintty-$(minttyver)/bin/*/windialog.o
 	rm -f mintty-$(minttyver)/bin/*/winmain.o
 	# build mintty
-	$(MAKE) -j12 -C mintty-$(minttyver)/src $(wslbuild) $(wslversion)
+	$(MAKE) -j$(shell nproc) -C mintty-$(minttyver)/src $(wslbuild) $(wslversion)
 	mkdir -p bin
 	cp mintty-$(minttyver)/bin/mintty.exe bin/
 	strip bin/mintty.exe

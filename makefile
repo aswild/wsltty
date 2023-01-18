@@ -11,16 +11,16 @@
 .NOTPARALLEL:
 
 # wsltty release
-ver=3.6.0
+ver=3.6.1.2
 
 # wsltty appx release - must have 4 parts!
-verx=3.6.0.0
+verx=3.6.1.2
 
 
 ##############################
 # mintty release version
 
-minttyver=3.6.0
+minttyver=3.6.1
 
 ##############################
 
@@ -28,7 +28,7 @@ minttyver=3.6.0
 repo=Biswa96/wslbridge2
 
 # wslbridge2 master release version
-wslbridgever=0.8
+wslbridgever=0.10
 
 # wslbridge2 latest version
 #archive=master
@@ -147,10 +147,12 @@ $(wslbridgedir).zip:
 wslbridge-source:	$(wslbridgedir).zip
 	unzip -o $(wslbridgedir).zip
 	cp $(wslbridgedir)/LICENSE LICENSE.wslbridge2
-	# patch
-	cd $(wslbridgedir); patch -p1 < ../0001-notify-size-change-inband.patch
+	# the following two patches are obsolete with wslbridge2 v0.9
+	# patch to fix #220
+	# test case in mintty: (sleep 0.1; echo -e "\e[31;80t") & wslbridge2
+	#cd $(wslbridgedir); patch -p1 < ../0001-notify-size-change-inband.patch
 	# patch to https://github.com/Biswa96/wslbridge2/commit/41575379b416703c49e2687e957440239a4cdfb7
-	cd $(wslbridgedir); patch -p0 < ../0002-add-com-for-lifted-wsl.patch
+	#cd $(wslbridgedir); patch -p0 < ../0002-add-com-for-lifted-wsl.patch
 
 wslbridge-frontend:	wslbridge-source
 	echo ------------- Compiling wslbridge2 frontend
